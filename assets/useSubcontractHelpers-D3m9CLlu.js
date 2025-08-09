@@ -1,1 +1,0 @@
-import{i as n}from"./index-D134uT4X.js";function m(){const{projects:r,subcontractors:c}=n();return{getProjectName:e=>{const t=r.find(o=>o.id===e);return t?t.name:e},getProjectCode:e=>{const t=r.find(o=>o.id===e);return t?t.code:""},getSubcontractorName:e=>{const t=c.find(o=>o.id===e);return t?t.companyName:e}}}export{m as u};
