@@ -4,12 +4,9 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 export default defineConfig(({ mode }) => {
-  // Use subfolder path when deploying to GitHub Pages
-  const isGitHubPages = process.env.GITHUB_PAGES === "true";
-  const basePath = isGitHubPages ? "/wet-trade-app/" : "./";
 
   return {
-    base: basePath,
+    base: "/wet-trade-app/",
     server: {
       host: "::",
       port: 8080,
