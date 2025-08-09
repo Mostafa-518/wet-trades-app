@@ -1,7 +1,7 @@
 {
   "name": "wet-trades-management",
   "private": true,
-  "homepage": "https://Mostafa-518.github.io/wet-trade-app/",
+  "homepage": "https://Mostafa-518.github.io/wet-trades-app/",
   "description": "A Vite + React + TypeScript with shadcn/ui components and Electron support.",
   "author": {
     "name": "Mostafa Ashraf",
