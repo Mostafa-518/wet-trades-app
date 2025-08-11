@@ -1,11 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Search } from 'lucide-react';
 import { TradeItem } from '@/types/subcontract';
 import { Trade } from '@/types/trade';
 import { TradeItem as TradeItemType } from '@/types/trade';
@@ -25,6 +25,8 @@ export function TradeItemForm({ selectedItems, onItemsChange, trades, tradeItems
     unitPrice: '',
     wastagePercentage: '0'
   });
+  const [tradeSearch, setTradeSearch] = useState('');
+  const [itemSearch, setItemSearch] = useState('');
 
   const getTradeItems = (tradeId: string) => {
     return tradeItems?.filter(item => item.trade_id === tradeId) || [];
@@ -34,6 +36,19 @@ export function TradeItemForm({ selectedItems, onItemsChange, trades, tradeItems
     if (!formData.trade || !formData.item) return null;
     return tradeItems?.find(item => item.trade_id === formData.trade && item.name === formData.item) || null;
   };
+
+  const filteredTrades = useMemo(() => {
+    if (!tradeSearch.trim()) return trades || [];
+    const tokens = tradeSearch.toLowerCase().split(/\s+/).filter(Boolean);
+    return (trades || []).filter(t => tokens.every(tok => (t.name || '').toLowerCase().includes(tok)));
+  }, [trades, tradeSearch]);
+
+  const filteredItems = useMemo(() => {
+    const items = getTradeItems(formData.trade);
+    if (!itemSearch.trim()) return items;
+    const tokens = itemSearch.toLowerCase().split(/\s+/).filter(Boolean);
+    return items.filter(it => tokens.every(tok => `${it.name} ${it.unit || ''}`.toLowerCase().includes(tok)));
+  }, [formData.trade, itemSearch, tradeItems]);
 
   const handleAddItem = () => {
     const selectedTradeItem = getSelectedTradeItem();
@@ -94,6 +109,15 @@ export function TradeItemForm({ selectedItems, onItemsChange, trades, tradeItems
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label>Trade</Label>
+              <div className="relative mt-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Type to filter trades..."
+                  value={tradeSearch}
+                  onChange={(e) => setTradeSearch(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
               <Select 
                 value={formData.trade} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, trade: value, item: '' }))}
@@ -102,17 +126,30 @@ export function TradeItemForm({ selectedItems, onItemsChange, trades, tradeItems
                   <SelectValue placeholder="Select trade" />
                 </SelectTrigger>
                 <SelectContent>
-                  {(trades || []).map(trade => (
+                  {filteredTrades.map(trade => (
                     <SelectItem key={trade.id} value={trade.id}>
                       {trade.name}
                     </SelectItem>
                   ))}
+                  {filteredTrades.length === 0 && tradeSearch && (
+                    <div className="px-2 py-3 text-sm text-muted-foreground">No trades found</div>
+                  )}
                 </SelectContent>
               </Select>
             </div>
 
             <div>
               <Label>Item</Label>
+              <div className="relative mt-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Type to filter items..."
+                  value={itemSearch}
+                  onChange={(e) => setItemSearch(e.target.value)}
+                  className="pl-9"
+                  disabled={!formData.trade}
+                />
+              </div>
               <Select 
                 value={formData.item} 
                 onValueChange={(value) => setFormData(prev => ({ ...prev, item: value }))}
@@ -122,11 +159,14 @@ export function TradeItemForm({ selectedItems, onItemsChange, trades, tradeItems
                   <SelectValue placeholder="Select item" />
                 </SelectTrigger>
                 <SelectContent>
-                  {getTradeItems(formData.trade).map(item => (
+                  {filteredItems.map(item => (
                     <SelectItem key={item.id} value={item.name}>
                       {item.name} ({item.unit})
                     </SelectItem>
                   ))}
+                  {filteredItems.length === 0 && itemSearch && (
+                    <div className="px-2 py-3 text-sm text-muted-foreground">No items found</div>
+                  )}
                 </SelectContent>
               </Select>
             </div>

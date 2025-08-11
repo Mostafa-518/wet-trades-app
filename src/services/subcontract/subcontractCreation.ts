@@ -164,6 +164,7 @@ export const createSubcontractWithTradeItems = async (
     addendum_number: data.contractType === 'ADD' ? addendumNumber : null,
     parent_subcontract_id: data.contractType === 'ADD' ? (data.parentSubcontractId || null) : null,
     date_of_issuing: data.dateOfIssuing || null,
+    pdf_url: data.pdfUrl || null,
   };
 
   console.log('Supabase insert payload:', subcontractPayload);

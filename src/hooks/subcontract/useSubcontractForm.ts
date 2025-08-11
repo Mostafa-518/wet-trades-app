@@ -10,6 +10,7 @@ export function useSubcontractForm() {
     tradeItems: [],
     responsibilities: [],
     pdfFile: null,
+    pdfUrl: '',
     dateOfIssuing: undefined,
     contractType: 'subcontract',
     addendumNumber: '',

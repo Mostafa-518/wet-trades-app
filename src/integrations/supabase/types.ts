@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       alerts: {
@@ -65,6 +70,208 @@ export type Database = {
             columns: ["subcontractor_id"]
             isOneToOne: false
             referencedRelation: "subcontractors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          after_snapshot: Json | null
+          before_snapshot: Json | null
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          after_snapshot?: Json | null
+          before_snapshot?: Json | null
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          after_snapshot?: Json | null
+          before_snapshot?: Json | null
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      estimate_feedback: {
+        Row: {
+          created_at: string
+          estimate_id: string
+          id: string
+          rating: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          estimate_id: string
+          id?: string
+          rating: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          estimate_id?: string
+          id?: string
+          rating?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_feedback_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estimate_line_items: {
+        Row: {
+          created_at: string
+          estimate_id: string
+          id: string
+          name: string
+          qty: number | null
+          source_ref: string | null
+          total_price: number | null
+          type: Database["public"]["Enums"]["estimate_line_type"]
+          unit: string | null
+          unit_price: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          estimate_id: string
+          id?: string
+          name: string
+          qty?: number | null
+          source_ref?: string | null
+          total_price?: number | null
+          type: Database["public"]["Enums"]["estimate_line_type"]
+          unit?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          estimate_id?: string
+          id?: string
+          name?: string
+          qty?: number | null
+          source_ref?: string | null
+          total_price?: number | null
+          type?: Database["public"]["Enums"]["estimate_line_type"]
+          unit?: string | null
+          unit_price?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimate_line_items_estimate_id_fkey"
+            columns: ["estimate_id"]
+            isOneToOne: false
+            referencedRelation: "estimates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      estimates: {
+        Row: {
+          ai_confidence: number | null
+          ai_notes: string | null
+          ai_rate: number | null
+          created_at: string
+          currency: string
+          final_rate: number | null
+          id: string
+          inflation_ref_month: string | null
+          item_name: string
+          location: string | null
+          market_factor: number
+          project_id: string | null
+          quantity: number | null
+          source_item_ids: string[] | null
+          specs: string | null
+          status: Database["public"]["Enums"]["estimate_status"]
+          trade_id: string | null
+          unit: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_confidence?: number | null
+          ai_notes?: string | null
+          ai_rate?: number | null
+          created_at?: string
+          currency?: string
+          final_rate?: number | null
+          id?: string
+          inflation_ref_month?: string | null
+          item_name: string
+          location?: string | null
+          market_factor?: number
+          project_id?: string | null
+          quantity?: number | null
+          source_item_ids?: string[] | null
+          specs?: string | null
+          status?: Database["public"]["Enums"]["estimate_status"]
+          trade_id?: string | null
+          unit: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_confidence?: number | null
+          ai_notes?: string | null
+          ai_rate?: number | null
+          created_at?: string
+          currency?: string
+          final_rate?: number | null
+          id?: string
+          inflation_ref_month?: string | null
+          item_name?: string
+          location?: string | null
+          market_factor?: number
+          project_id?: string | null
+          quantity?: number | null
+          source_item_ids?: string[] | null
+          specs?: string | null
+          status?: Database["public"]["Enums"]["estimate_status"]
+          trade_id?: string | null
+          unit?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "estimates_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "estimates_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
             referencedColumns: ["id"]
           },
         ]
@@ -254,6 +461,7 @@ export type Database = {
           end_date: string | null
           id: string
           parent_subcontract_id: string | null
+          pdf_url: string | null
           project_id: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["subcontract_status"] | null
@@ -271,6 +479,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           parent_subcontract_id?: string | null
+          pdf_url?: string | null
           project_id?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["subcontract_status"] | null
@@ -288,6 +497,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           parent_subcontract_id?: string | null
+          pdf_url?: string | null
           project_id?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["subcontract_status"] | null
@@ -425,6 +635,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_clear_audit_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      admin_delete_audit_logs: {
+        Args: { ids: string[] }
+        Returns: number
+      }
+      admin_undo_subcontract: {
+        Args: { p_log_id: string }
+        Returns: undefined
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
@@ -433,8 +655,14 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
+      purge_old_audit_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
     }
     Enums: {
+      estimate_line_type: "material" | "labor" | "equipment" | "overhead"
+      estimate_status: "draft" | "final"
       project_status:
         | "planning"
         | "active"
@@ -447,7 +675,13 @@ export type Database = {
         | "active"
         | "completed"
         | "cancelled"
-      user_role: "admin" | "project_manager" | "supervisor" | "viewer"
+      user_role:
+        | "admin"
+        | "project_manager"
+        | "supervisor"
+        | "viewer"
+        | "procurement_manager"
+        | "procurement_engineer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -455,21 +689,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -487,14 +725,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -510,14 +750,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -533,14 +775,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -548,14 +792,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
@@ -563,6 +809,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      estimate_line_type: ["material", "labor", "equipment", "overhead"],
+      estimate_status: ["draft", "final"],
       project_status: [
         "planning",
         "active",
@@ -577,7 +825,14 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
-      user_role: ["admin", "project_manager", "supervisor", "viewer"],
+      user_role: [
+        "admin",
+        "project_manager",
+        "supervisor",
+        "viewer",
+        "procurement_manager",
+        "procurement_engineer",
+      ],
     },
   },
 } as const

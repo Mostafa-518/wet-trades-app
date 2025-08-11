@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Upload } from 'lucide-react';
+
 import { FormData } from '@/types/subcontract';
 import { formatCurrency } from '@/utils/currency';
 import { useSubcontractHelpers } from '@/hooks/subcontract/useSubcontractHelpers';
@@ -13,7 +13,6 @@ interface DocumentsReviewStepProps {
   formData: FormData;
   setFormData: React.Dispatch<React.SetStateAction<FormData>>;
   totalAmount: number;
-  onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
   renderExtraFields?: React.ReactNode; // Allow for extra UI (for date of issuing, etc.)
 }
 
@@ -21,7 +20,6 @@ export function DocumentsReviewStep({
   formData,
   setFormData,
   totalAmount,
-  onFileUpload,
   renderExtraFields,
 }: DocumentsReviewStepProps) {
   const { getProjectName, getSubcontractorName } = useSubcontractHelpers();
@@ -29,23 +27,15 @@ export function DocumentsReviewStep({
   return (
     <div className="space-y-6">
       <div>
-        <Label htmlFor="pdf">Upload Contract PDF</Label>
+        <Label htmlFor="pdfUrl">Contract PDF Link</Label>
         <div className="mt-2">
           <Input
-            type="file"
-            accept=".pdf"
-            onChange={onFileUpload}
-            className="hidden"
-            id="pdf-upload"
+            id="pdfUrl"
+            type="url"
+            placeholder="Paste the SharePoint link to the contract PDF"
+            value={formData.pdfUrl || ''}
+            onChange={(e) => setFormData(prev => ({ ...prev, pdfUrl: e.target.value }))}
           />
-          <Button
-            variant="outline"
-            onClick={() => document.getElementById('pdf-upload')?.click()}
-            className="w-full flex items-center gap-2"
-          >
-            <Upload className="h-4 w-4" />
-            {formData.pdfFile ? formData.pdfFile.name : 'Choose PDF file...'}
-          </Button>
         </div>
       </div>
 

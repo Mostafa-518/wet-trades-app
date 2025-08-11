@@ -2,6 +2,7 @@
 import React from 'react';
 import { FormData } from '@/types/subcontract';
 import { useData } from '@/contexts/DataContext';
+import { ParentSubcontractSelector } from './ParentSubcontractSelector';
 
 interface ContractTypeSelectorProps {
   formData: FormData;
@@ -9,7 +10,10 @@ interface ContractTypeSelectorProps {
 }
 
 export function ContractTypeSelector({ formData, setFormData }: ContractTypeSelectorProps) {
-  const { subcontracts } = useData();
+  const { subcontracts, projects, subcontractors } = useData();
+
+  const getProjectName = (projectId: string) => projects.find(p => p.id === projectId)?.name || '';
+  const getSubcontractorName = (subcontractorId: string) => subcontractors.find(s => s.id === subcontractorId)?.companyName || '';
 
   const getAddendumPreview = () => {
     if (formData.contractType === 'ADD' && formData.parentSubcontractId) {
@@ -56,29 +60,18 @@ export function ContractTypeSelector({ formData, setFormData }: ContractTypeSele
       </div>
       {formData.contractType === 'ADD' && (
         <div>
-          <label className="block font-medium mb-1">Parent Subcontract *</label>
-          <select
-            className="border rounded px-3 py-2 w-full"
+          <ParentSubcontractSelector
+            subcontracts={Array.isArray(subcontracts) ? subcontracts : []}
             value={formData.parentSubcontractId || ''}
-            onChange={e =>
+            onChange={(parentId) =>
               setFormData(prev => ({
                 ...prev,
-                parentSubcontractId: e.target.value
+                parentSubcontractId: parentId
               }))
             }
-            required={formData.contractType === 'ADD'}
-          >
-            <option value="">Select parent subcontract...</option>
-            {Array.isArray(subcontracts)
-              ? subcontracts
-                  .filter(sc => sc.contractType === 'subcontract') // Only allow "main" contracts
-                  .map(sc => (
-                    <option key={sc.id} value={sc.id}>
-                      {sc.contractId} - {sc.description}
-                    </option>
-                  ))
-              : null}
-          </select>
+            getProjectName={getProjectName}
+            getSubcontractorName={getSubcontractorName}
+          />
           {getAddendumPreview() && (
             <p className="text-sm text-blue-600 mt-1 font-medium">
               Generated ID will be: {getAddendumPreview()}

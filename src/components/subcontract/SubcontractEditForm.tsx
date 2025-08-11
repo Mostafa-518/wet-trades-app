@@ -30,6 +30,7 @@ export function SubcontractEditForm({ subcontract, onSave, onClose }: Subcontrac
     endDate: '',
     dateOfIssuing: '',
     description: '',
+    pdfUrl: '',
     contractType: 'subcontract' as 'subcontract' | 'ADD',
     parentSubcontractId: ''
   });
@@ -61,6 +62,7 @@ export function SubcontractEditForm({ subcontract, onSave, onClose }: Subcontrac
         endDate: subcontract.endDate || '',
         dateOfIssuing: subcontract.dateOfIssuing || '',
         description: subcontract.description || '',
+        pdfUrl: subcontract.pdfUrl || '',
         contractType: subcontract.contractType || 'subcontract',
         parentSubcontractId: subcontract.parentSubcontractId || ''
       });

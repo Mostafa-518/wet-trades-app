@@ -71,6 +71,7 @@ export function mapSubcontractToFrontend(dbRow: any): Subcontract {
     endDate: dbRow.endDate || dbRow.end_date || '',
     dateOfIssuing: dbRow.dateOfIssuing || dbRow.date_of_issuing || '',
     description: dbRow.description || '',
+    pdfUrl: dbRow.pdfUrl || dbRow.pdf_url || '',
     createdAt: dbRow.createdAt || dbRow.created_at || '',
     updatedAt: dbRow.updatedAt || dbRow.updated_at || '',
     contractType,

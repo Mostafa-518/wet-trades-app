@@ -16,6 +16,7 @@ interface FormData {
   endDate: string;
   dateOfIssuing: string;
   description: string;
+  pdfUrl: string;
   contractType: 'subcontract' | 'ADD';
   parentSubcontractId: string;
 }
@@ -178,6 +179,18 @@ export function SubcontractEditFields({
           value={formData.dateOfIssuing}
           onChange={(e) => setFormData(prev => ({ ...prev, dateOfIssuing: e.target.value }))}
         />
+      </div>
+
+      <div>
+        <Label htmlFor="pdfUrl">Contract PDF Link</Label>
+        <Input
+          id="pdfUrl"
+          type="url"
+          value={formData.pdfUrl}
+          onChange={(e) => setFormData(prev => ({ ...prev, pdfUrl: e.target.value }))}
+          placeholder="Paste the SharePoint PDF link"
+        />
+        <p className="text-sm text-muted-foreground mt-1">Example: https://orascomconstructionegypt.sharepoint.com/...</p>
       </div>
 
       <div>

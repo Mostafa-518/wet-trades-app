@@ -21,6 +21,7 @@ export const updateSubcontractWithTradeItems = async (
     start_date: data.startDate,
     end_date: data.endDate,
     description: data.description || '',
+    pdf_url: data.pdfUrl,
   };
 
   await subcontractService.update(id, updatePayload);

@@ -29,23 +29,11 @@ export function UserManagement() {
     queryFn: async () => {
       const data = await UserService.getAll();
       return data.map(user => {
-        // Handle role normalization based on current database values
-        const roleMapping: Record<string, 'admin' | 'procurement_manager' | 'procurement_engineer' | 'viewer'> = {
-          'admin': 'admin',
-          'project_manager': 'procurement_manager', // Map old values to new ones
-          'procurement_manager': 'procurement_manager',
-          'supervisor': 'procurement_engineer', // Map old values to new ones
-          'procurement_engineer': 'procurement_engineer',
-          'viewer': 'viewer'
-        };
-        
-        const normalizedRole = roleMapping[user.role] || 'viewer';
-        
         return {
           id: user.id,
           name: user.full_name || '',
           email: user.email || '',
-          role: normalizedRole,
+          role: user.role as 'admin' | 'procurement_manager' | 'procurement_engineer' | 'viewer',
           phone: user.phone || '',
           department: 'General',
           status: 'active' as const,

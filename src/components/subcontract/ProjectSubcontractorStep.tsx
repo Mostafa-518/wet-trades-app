@@ -29,22 +29,21 @@ export function ProjectSubcontractorStep({ formData, setFormData }: ProjectSubco
   // Filter projects based on search (by name or code)
   const filteredProjects = useMemo(() => {
     if (!projectSearch.trim()) return validProjects;
-    const searchLower = projectSearch.toLowerCase();
-    return validProjects.filter(project => 
-      project.name.toLowerCase().includes(searchLower) ||
-      project.code.toLowerCase().includes(searchLower)
-    );
+    const tokens = projectSearch.toLowerCase().split(/\s+/).filter(Boolean);
+    return validProjects.filter(project => {
+      const hay = `${project.name} ${project.code} ${project.location || ''}`.toLowerCase();
+      return tokens.every(t => hay.includes(t));
+    });
   }, [validProjects, projectSearch]);
 
   // Filter subcontractors based on search (by name, commercial registration, or tax card)
   const filteredSubcontractors = useMemo(() => {
     if (!subcontractorSearch.trim()) return validSubcontractors;
-    const searchLower = subcontractorSearch.toLowerCase();
-    return validSubcontractors.filter(sub => 
-      sub.companyName.toLowerCase().includes(searchLower) ||
-      (sub.commercialRegistration && sub.commercialRegistration.toLowerCase().includes(searchLower)) ||
-      (sub.taxCardNo && sub.taxCardNo.toLowerCase().includes(searchLower))
-    );
+    const tokens = subcontractorSearch.toLowerCase().split(/\s+/).filter(Boolean);
+    return validSubcontractors.filter(sub => {
+      const hay = `${sub.companyName} ${sub.representativeName || ''} ${sub.phone || ''} ${sub.commercialRegistration || ''} ${sub.taxCardNo || ''}`.toLowerCase();
+      return tokens.every(t => hay.includes(t));
+    });
   }, [validSubcontractors, subcontractorSearch]);
 
   const handleProjectCreated = (projectName: string) => {

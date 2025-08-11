@@ -15,6 +15,7 @@ export interface FormData {
   tradeItems: TradeItem[];
   responsibilities: string[];
   pdfFile: File | null;
+  pdfUrl?: string; // NEW: link to contract PDF
   dateOfIssuing?: string; // <--- FIXED: added property
 }
 
@@ -67,6 +68,7 @@ export interface Subcontract {
   endDate: string;
   dateOfIssuing?: string; // NEW
   description: string;
+  pdfUrl?: string; // NEW: external contract PDF link
   createdAt: string;
   updatedAt: string;
   contractType: 'subcontract' | 'ADD'; // NEW
@@ -81,6 +83,7 @@ export interface FormData {
   tradeItems: TradeItem[];
   responsibilities: string[];
   pdfFile: File | null;
+  pdfUrl?: string; // NEW
   dateOfIssuing?: string; // already present
   contractType?: 'subcontract' | 'ADD'; // NEW
   addendumNumber?: string; // NEW

@@ -34,6 +34,18 @@ export function SubcontractDetailView({ subcontract, onBack, onEdit }: Subcontra
   };
 
   const handleDownloadPDF = () => {
+    if (subcontract.pdfUrl) {
+      try {
+        window.open(subcontract.pdfUrl, '_blank', 'noopener');
+        toast({ title: 'Opening link', description: 'Contract PDF link opened in a new tab.' });
+      } catch (error) {
+        console.error('Error opening PDF link:', error);
+        toast({ title: 'Error', description: 'Failed to open the PDF link.', variant: 'destructive' });
+      }
+      return;
+    }
+
+    // Fallback to generating a PDF if no link is available
     try {
       generateSubcontractPDF({
         subcontract,
@@ -41,18 +53,10 @@ export function SubcontractDetailView({ subcontract, onBack, onEdit }: Subcontra
         subcontractorName: subcontractorData?.companyName || 'Unknown Subcontractor',
         subcontractorData
       });
-      
-      toast({
-        title: "PDF Generated",
-        description: "Contract PDF has been downloaded successfully"
-      });
+      toast({ title: 'PDF Generated', description: 'Contract PDF has been downloaded successfully' });
     } catch (error) {
       console.error('Error generating PDF:', error);
-      toast({
-        title: "Error",
-        description: "Failed to generate PDF. Please try again.",
-        variant: "destructive"
-      });
+      toast({ title: 'Error', description: 'Failed to generate PDF. Please try again.', variant: 'destructive' });
     }
   };
 

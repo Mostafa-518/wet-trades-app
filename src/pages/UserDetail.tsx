@@ -53,20 +53,11 @@ export function UserDetail() {
   }
 
   // Transform database user to User interface
-  const roleMapping: Record<string, 'admin' | 'procurement_manager' | 'procurement_engineer' | 'viewer'> = {
-    'admin': 'admin',
-    'project_manager': 'procurement_manager',
-    'procurement_manager': 'procurement_manager', 
-    'supervisor': 'procurement_engineer',
-    'procurement_engineer': 'procurement_engineer',
-    'viewer': 'viewer'
-  };
-  
   const transformedUser = {
     id: user.id,
     name: user.full_name || '',
     email: user.email || '',
-    role: roleMapping[user.role] || 'viewer',
+    role: user.role as 'admin' | 'procurement_manager' | 'procurement_engineer' | 'viewer',
     department: '', // Database doesn't have department field
     status: 'active' as const, // Database doesn't have status field
     createdAt: user.created_at,

@@ -41,7 +41,7 @@ export function useUserMutations() {
           // Update the profile with additional data including avatar
           await UserService.update(data.user.id, {
             full_name: userData.name,
-            role: userData.role,
+            role: userData.role, // Direct mapping now that DB uses new role names
             phone: userData.phone,
             avatar_url: userData.avatar
           });
@@ -81,7 +81,7 @@ export function useUserMutations() {
       const updateData = {
         full_name: userData.name,
         email: userData.email,
-        role: userData.role,
+        role: userData.role, // Direct mapping now that DB uses new role names
         phone: userData.phone,
         avatar_url: userData.avatar
       };

@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 
 interface ResponsibilitiesStepProps {
   selectedResponsibilities: string[];
@@ -12,6 +14,7 @@ interface ResponsibilitiesStepProps {
 }
 
 export function ResponsibilitiesStep({ selectedResponsibilities, onResponsibilitiesChange, responsibilities }: ResponsibilitiesStepProps) {
+  const [respSearch, setRespSearch] = useState('');
   const toggleResponsibility = (respName: string) => {
     const current = selectedResponsibilities || [];
     const updated = current.includes(respName)
@@ -19,6 +22,12 @@ export function ResponsibilitiesStep({ selectedResponsibilities, onResponsibilit
       : [...current, respName];
     onResponsibilitiesChange(updated);
   };
+
+  const filteredResponsibilities = useMemo(() => {
+    if (!respSearch.trim()) return responsibilities || [];
+    const tokens = respSearch.toLowerCase().split(/\s+/).filter(Boolean);
+    return (responsibilities || []).filter((resp: any) => tokens.every(tok => (resp.name || '').toLowerCase().includes(tok)));
+  }, [responsibilities, respSearch]);
 
   return (
     <Card>

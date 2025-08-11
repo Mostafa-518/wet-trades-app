@@ -37,22 +37,15 @@ export function ParentSubcontractSelector({
   // Filter contracts based on search term
   const filteredContracts = useMemo(() => {
     if (!searchTerm.trim()) return parentCandidates;
-    
-    const searchLower = searchTerm.toLowerCase();
+    const tokens = searchTerm.toLowerCase().split(/\s+/).filter(Boolean);
     return parentCandidates.filter(contract => {
-      const contractNumber = contract.contractId?.toLowerCase() || '';
-      const supplierName = getSubcontractorName(contract.subcontractor)?.toLowerCase() || '';
-      const projectName = getProjectName(contract.project)?.toLowerCase() || '';
+      const contractNumber = contract.contractId || '';
+      const supplierName = getSubcontractorName(contract.subcontractor) || '';
+      const projectName = getProjectName(contract.project) || '';
       const contractDate = contract.dateOfIssuing || '';
-      const totalAmount = contract.totalValue?.toString() || '';
-      
-      return (
-        contractNumber.includes(searchLower) ||
-        supplierName.includes(searchLower) ||
-        projectName.includes(searchLower) ||
-        contractDate.includes(searchLower) ||
-        totalAmount.includes(searchLower)
-      );
+      const totalAmount = (contract.totalValue?.toString()) || '';
+      const hay = `${contractNumber} ${supplierName} ${projectName} ${contractDate} ${totalAmount}`.toLowerCase();
+      return tokens.every(t => hay.includes(t));
     });
   }, [parentCandidates, searchTerm, getProjectName, getSubcontractorName]);
 

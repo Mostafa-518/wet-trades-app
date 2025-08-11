@@ -11,6 +11,9 @@ export { UserService } from './userService';
 export { AuthService } from './authService';
 export { default as ApiService, apiService } from './apiService';
 export { alertService } from './alertService';
-
+ 
 // Export types
 export type { UserProfile } from './types';
+
+// New services
+export { estimateService } from './estimateService';

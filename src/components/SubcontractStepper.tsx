@@ -28,25 +28,6 @@ export function SubcontractStepper({ onClose, onSave }: SubcontractStepperProps)
   } = useSubcontractForm();
   const { validateStep, validateFinalSave } = useSubcontractValidation();
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    // File upload triggered
-    const file = event.target.files?.[0];
-    if (file && file.type === 'application/pdf') {
-      // Valid PDF file uploaded
-      setFormData(prev => ({ ...prev, pdfFile: file }));
-      toast({
-        title: "File Uploaded",
-        description: `${file.name} uploaded successfully`
-      });
-    } else {
-      // Invalid file type attempted
-      toast({
-        title: "Invalid File",
-        description: "Please upload a PDF file",
-        variant: "destructive"
-      });
-    }
-  };
 
   const handleSave = async () => {
     // Save button clicked - validate current step
@@ -76,6 +57,7 @@ export function SubcontractStepper({ onClose, onSave }: SubcontractStepperProps)
       endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       dateOfIssuing: formData.dateOfIssuing || new Date().toISOString().split('T')[0],
       description: `${formData.contractType === 'ADD' ? 'Addendum' : 'Subcontract'} for ${formData.project} with ${formData.subcontractor}`,
+      pdfUrl: formData.pdfUrl || undefined,
       contractType: formData.contractType || 'subcontract',
       addendumNumber: formData.contractType === 'ADD' ? (formData.addendumNumber || undefined) : undefined,
       parentSubcontractId: formData.contractType === 'ADD' ? (formData.parentSubcontractId || undefined) : undefined
@@ -134,7 +116,7 @@ export function SubcontractStepper({ onClose, onSave }: SubcontractStepperProps)
             formData={formData}
             setFormData={setFormData}
             totalAmount={getTotalAmount()}
-            onFileUpload={handleFileUpload}
+            
             renderExtraFields={
               <>
                 <div className="mt-4">
