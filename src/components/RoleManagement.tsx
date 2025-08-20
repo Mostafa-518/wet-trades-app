@@ -1,15 +1,14 @@
+
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { UserService } from '@/services/userService';
 import { Permission, Role } from '@/hooks/usePermissions';
 import { User } from '@/types/user';
+import { useAuth } from '@/hooks/useAuth';
 
 const AVAILABLE_PERMISSIONS: Permission[] = [
   'read',
@@ -42,6 +41,7 @@ const PERMISSION_LABELS: Record<Permission, string> = {
 export function RoleManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { profile } = useAuth();
   
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['users'],
@@ -64,26 +64,69 @@ export function RoleManagement() {
 
   const updateUserRoleMutation = useMutation({
     mutationFn: async ({ userId, role }: { userId: string, role: Role }) => {
-      // Pass role as-is - the database should accept the new role values
-      return await UserService.update(userId, { role: role as any });
+      console.log('=== Role Update Started ===');
+      console.log('Updating user role:', { userId, role });
+      
+      try {
+        const result = await UserService.update(userId, { role });
+        console.log('Role update service result:', result);
+        return result;
+      } catch (error) {
+        console.error('Role update service error:', error);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      console.log('=== Role Update Success ===');
+      console.log('Role update successful:', data);
+      console.log('Variables:', variables);
+      
+      // Invalidate and refetch queries
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      queryClient.invalidateQueries({ queryKey: ['userProfile'] });
+      queryClient.refetchQueries({ queryKey: ['users'] });
+      
       toast({
         title: "Role updated",
-        description: "User role has been successfully updated.",
+        description: `User role has been successfully updated to ${variables.role.replace('_', ' ')}.`,
       });
     },
     onError: (error: any) => {
+      console.error('=== Role Update Error ===');
+      console.error('Role update error:', error);
+      console.error('Error details:', {
+        message: error?.message,
+        code: error?.code,
+        details: error?.details,
+        hint: error?.hint
+      });
+      
       toast({
         title: "Error",
-        description: error.message || "Failed to update user role",
+        description: error.message || "Failed to update user role. Please check your permissions.",
         variant: "destructive"
       });
     }
   });
 
   const handleRoleChange = (userId: string, newRole: Role) => {
+    console.log('=== handleRoleChange called ===');
+    console.log('Role change requested:', { userId, newRole });
+    console.log('Current profile:', profile);
+    console.log('Is mutation pending?', updateUserRoleMutation.isPending);
+    
+    // Security: Prevent self-role modification
+    if (userId === profile?.id) {
+      console.log('Blocking self-role modification');
+      toast({
+        title: "Error",
+        description: "You cannot modify your own role",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    console.log('Calling mutation with:', { userId, role: newRole });
     updateUserRoleMutation.mutate({ userId, role: newRole });
   };
 
@@ -123,14 +166,14 @@ export function RoleManagement() {
 
       {/* Role Definitions */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {(['admin', 'procurement_manager', 'procurement_engineer', 'viewer'] as Role[]).map((role) => (
+        {(['admin', 'procurement_manager', 'procurement_engineer', 'viewer'] as Role[]).map((role) => (
           <Card key={role}>
             <CardHeader>
               <CardTitle className="capitalize">{role.replace('_', ' ')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Permissions:</Label>
+                <div className="text-sm font-medium">Permissions:</div>
                 <div className="flex flex-wrap gap-1">
                   {getRolePermissions(role).map((permission) => (
                     <Badge key={permission} variant="secondary" className="text-xs">
@@ -168,17 +211,24 @@ export function RoleManagement() {
                   </Badge>
                   
                   <div className="flex gap-2">
-                    {(['admin', 'procurement_manager', 'procurement_engineer', 'viewer'] as Role[]).map((role) => (
-                      <Button
-                        key={role}
-                        variant={user.role === role ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => handleRoleChange(user.id, role)}
-                        disabled={updateUserRoleMutation.isPending}
-                      >
-                        {role.replace('_', ' ')}
-                      </Button>
-                    ))}
+                    {(['admin', 'procurement_manager', 'procurement_engineer', 'viewer'] as Role[]).map((role) => {
+                      // Security: Prevent self-role modification
+                      const isOwnProfile = user.id === profile?.id;
+                      const isDisabled = updateUserRoleMutation.isPending || isOwnProfile;
+                      
+                      return (
+                        <Button
+                          key={role}
+                          variant={user.role === role ? 'default' : 'outline'}
+                          size="sm"
+                          onClick={() => handleRoleChange(user.id, role)}
+                          disabled={isDisabled}
+                          title={isOwnProfile ? "Cannot modify your own role" : undefined}
+                        >
+                          {role.replace('_', ' ')}
+                        </Button>
+                      );
+                    })}
                   </div>
                 </div>
               </div>

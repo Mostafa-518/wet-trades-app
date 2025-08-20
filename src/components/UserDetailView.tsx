@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowLeft, Edit, Mail, Phone, Calendar, Shield, Clock, User as UserIcon } from 'lucide-react';
 import { User } from '@/types/user';
 import { formatDistanceToNow } from 'date-fns';
+import { usePermissions } from '@/hooks/usePermissions';
+import { logUserManagementAction } from '@/utils/security/dataAccessLogger';
 
 interface UserDetailViewProps {
   user: User;
@@ -15,6 +17,16 @@ interface UserDetailViewProps {
 }
 
 export function UserDetailView({ user, onBack, onEdit }: UserDetailViewProps) {
+  const { hasPermission } = usePermissions();
+  const canViewSensitiveData = hasPermission('manage_users');
+
+  useEffect(() => {
+    // Log access to user profile for security audit
+    logUserManagementAction('profile_view', user.id, {
+      viewed_user_role: user.role,
+      access_type: 'detailed_view'
+    });
+  }, [user.id, user.role]);
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
@@ -107,7 +119,9 @@ export function UserDetailView({ user, onBack, onEdit }: UserDetailViewProps) {
               <label className="text-sm font-medium text-muted-foreground">Email</label>
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <p className="text-lg font-semibold break-all">{user.email}</p>
+                <p className="text-lg font-semibold break-all">
+                  {canViewSensitiveData ? user.email : '••••••@••••••.com'}
+                </p>
               </div>
             </div>
             {user.phone && (
@@ -115,7 +129,9 @@ export function UserDetailView({ user, onBack, onEdit }: UserDetailViewProps) {
                 <label className="text-sm font-medium text-muted-foreground">Phone</label>
                 <div className="flex items-center gap-2">
                   <Phone className="h-4 w-4 text-muted-foreground" />
-                  <p className="text-lg font-semibold">{user.phone}</p>
+                  <p className="text-lg font-semibold">
+                    {canViewSensitiveData ? user.phone : '•••••••••••'}
+                  </p>
                 </div>
               </div>
             )}

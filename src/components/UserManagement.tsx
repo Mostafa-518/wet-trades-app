@@ -10,6 +10,7 @@ import { UserService } from '@/services/userService';
 import { User } from '@/types/user';
 import { useAuth } from '@/hooks/useAuth';
 import { usePermissions } from '@/hooks/usePermissions';
+import { logUserManagementAction } from '@/utils/security/dataAccessLogger';
 
 export function UserManagement() {
   const location = useLocation();
@@ -43,40 +44,50 @@ export function UserManagement() {
         };
       });
     },
-    staleTime: 0, // Always refetch to ensure fresh data
-    refetchOnWindowFocus: true, // Refetch when window gains focus
+    staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   React.useEffect(() => {
     if (location.state?.editUser) {
+      console.log('Opening edit form for user:', location.state.editUser);
       setEditingUser(location.state.editUser);
       setIsFormOpen(true);
     }
   }, [location.state]);
 
   const handleAddUser = () => {
+    console.log('Adding new user');
     setEditingUser(null);
     setIsFormOpen(true);
   };
 
   const handleEditUser = (user: User) => {
+    console.log('Editing user:', user);
     setEditingUser(user);
     setIsFormOpen(true);
     setIsDetailOpen(false);
   };
 
-  const handleViewUser = (user: User) => {
+  const handleViewUser = async (user: User) => {
+    console.log('Viewing user:', user);
+    // Log the profile view action
+    await logUserManagementAction('profile_view', user.id);
     setSelectedUser(user);
     setIsDetailOpen(true);
   };
 
   const handleDeleteUser = (userId: string) => {
+    console.log('Requesting deletion for user:', userId);
     setUserToDelete(userId);
     setIsDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (userToDelete) {
+      console.log('Confirming deletion for user:', userToDelete);
+      // Log user deletion
+      await logUserManagementAction('user_delete', userToDelete);
       deleteUserMutation.mutate(userToDelete);
     }
     setIsDeleteDialogOpen(false);
@@ -85,19 +96,41 @@ export function UserManagement() {
 
   const handleFormSubmit = async (data: any) => {
     try {
+      console.log('Submitting user form:', { editingUser: editingUser?.id, data });
+      
       if (editingUser) {
+        // Log role change if role is being modified
+        if (data.role && data.role !== editingUser.role) {
+          await logUserManagementAction('role_change', editingUser.id, {
+            old_role: editingUser.role,
+            new_role: data.role
+          });
+        }
+        
+        console.log('Updating existing user:', editingUser.id);
         await updateUserMutation.mutateAsync({ id: editingUser.id, userData: data });
       } else {
-        await createUserMutation.mutateAsync(data);
+        console.log('Creating new user');
+        const newUser = await createUserMutation.mutateAsync(data);
+        // Log user creation
+        if (newUser) {
+          await logUserManagementAction('user_create', newUser.id, {
+            created_role: data.role
+          });
+        }
       }
+      
+      console.log('User form submitted successfully');
       setIsFormOpen(false);
       setEditingUser(null);
     } catch (error) {
+      console.error('Error submitting user form:', error);
       // Error handling is done in mutation callbacks
     }
   };
 
   const handleFormCancel = () => {
+    console.log('Canceling user form');
     setIsFormOpen(false);
     setEditingUser(null);
   };
@@ -106,9 +139,6 @@ export function UserManagement() {
     setIsDetailOpen(false);
     setSelectedUser(null);
   };
-
-  // Debug information about user role and permissions
-  // Check permissions for user management
 
   if (isDetailOpen && selectedUser) {
     return (

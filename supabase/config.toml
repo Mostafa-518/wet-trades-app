@@ -1,4 +1,7 @@
 project_id = "mcjdeqfqbucfterqzglp"
 
+[functions.send-alert-notification]
+verify_jwt = false
+
 [functions.estimate-with-ai]
 verify_jwt = true

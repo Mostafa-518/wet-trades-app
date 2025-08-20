@@ -1,11 +1,12 @@
 
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useEffect } from 'react';
 import { DataContextType } from '@/types/dataContext';
 import { ProjectProvider, useProjectContext } from './ProjectContext';
 import { SubcontractorProvider, useSubcontractorContext } from './SubcontractorContext';
 import { TradeProvider, useTradeContext } from './TradeContext';
 import { ResponsibilityProvider, useResponsibilityContext } from './ResponsibilityContext';
 import { SubcontractProvider, useSubcontractContext } from './SubcontractContext';
+import { alertNotificationService } from '@/services/alertNotificationService';
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
@@ -74,6 +75,15 @@ function DataContextProvider({ children }: { children: React.ReactNode }) {
 }
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
+  useEffect(() => {
+    // Start listening for alert notifications when the app loads
+    alertNotificationService.startListening();
+    
+    return () => {
+      alertNotificationService.stopListening();
+    };
+  }, []);
+
   return (
     <ProjectProvider>
       <SubcontractorProvider>

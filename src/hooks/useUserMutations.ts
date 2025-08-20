@@ -4,6 +4,32 @@ import { useToast } from '@/hooks/use-toast';
 import { UserService } from '@/services/userService';
 import { supabase } from '@/integrations/supabase/client';
 
+// Generate cryptographically secure password
+function generateSecurePassword(): string {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+  const length = 16;
+  const array = new Uint8Array(length);
+  crypto.getRandomValues(array);
+  
+  let password = '';
+  for (let i = 0; i < length; i++) {
+    password += chars[array[i] % chars.length];
+  }
+  
+  // Ensure at least one of each required character type
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  const hasSymbol = /[!@#$%^&*()_+\-=[\]{}|;:,.<>?]/.test(password);
+  
+  if (!hasUpper || !hasLower || !hasNumber || !hasSymbol) {
+    // Regenerate if requirements not met
+    return generateSecurePassword();
+  }
+  
+  return password;
+}
+
 export function useUserMutations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -12,8 +38,8 @@ export function useUserMutations() {
     mutationFn: async (userData: any) => {
       console.log('Creating new user with data:', userData);
       
-      // Generate a default password if none provided
-      const password = userData.password || 'TempPassword123!';
+      // Generate a cryptographically secure default password if none provided
+      const password = userData.password || generateSecurePassword();
       
       const { data, error } = await supabase.auth.signUp({
         email: userData.email,
@@ -60,7 +86,7 @@ export function useUserMutations() {
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
       toast({
         title: "User created",
-        description: "The new user has been successfully created. They will receive a confirmation email.",
+        description: "The new user has been successfully created. They will receive a confirmation email with login instructions.",
       });
     },
     onError: (error: any) => {

@@ -163,7 +163,7 @@ function ReportContent() {
   };
 
   const handleExportTable = async () => {
-    const result = exportTableToExcel(reportData.tableData, reportData.filters);
+    const result = await exportTableToExcel(reportData.tableData, reportData.filters);
 
     if (result.success) {
       toast({

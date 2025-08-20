@@ -1,9 +1,13 @@
 
 import * as XLSX from 'xlsx';
+import DOMPurify from 'dompurify';
 import { ReportTableData } from '@/types/report';
 
-export const exportTableToExcel = (tableData: ReportTableData[], filters: any) => {
+export const exportTableToExcel = async (tableData: ReportTableData[], filters: any) => {
   try {
+    // Log the export action for audit purposes
+    const { logBulkDataAccess } = await import('@/utils/security/dataAccessLogger');
+    await logBulkDataAccess('subcontracts', tableData.length, 'export', filters);
     // Prepare data for Excel
     const excelData = tableData.map((row, index) => ({
       'Item': row.item,
@@ -53,6 +57,9 @@ export const exportTableToExcel = (tableData: ReportTableData[], filters: any) =
 
 export const exportGraphsToPDF = async (filters: any) => {
   try {
+    // Log the PDF export action for audit purposes
+    const { logBulkDataAccess } = await import('@/utils/security/dataAccessLogger');
+    await logBulkDataAccess('reports', 1, 'print', filters);
     // Get the graphs container
     const graphsContainer = document.querySelector('[data-graphs-container]');
     
@@ -65,6 +72,10 @@ export const exportGraphsToPDF = async (filters: any) => {
     if (!printWindow) {
       throw new Error('Could not open print window');
     }
+
+    // Apply security headers to the new window
+    const { applySecurityHeaders } = await import('@/utils/security/securityHeaders');
+    applySecurityHeaders(printWindow);
     
     // Clone the graphs content
     const clonedContent = graphsContainer.cloneNode(true) as HTMLElement;
@@ -123,14 +134,16 @@ export const exportGraphsToPDF = async (filters: any) => {
               )
               .map(([key, value]) => {
                 const displayValue = Array.isArray(value) ? value.join(', ') : value;
-                return `<span class="filter-item">${key}: ${displayValue}</span>`;
+                const sanitizedKey = DOMPurify.sanitize(String(key));
+                const sanitizedValue = DOMPurify.sanitize(String(displayValue));
+                return `<span class="filter-item">${sanitizedKey}: ${sanitizedValue}</span>`;
               })
               .join('')
             }
           </div>
           
           <div class="graphs-content">
-            ${clonedContent.innerHTML}
+            ${DOMPurify.sanitize(clonedContent.innerHTML)}
           </div>
         </body>
       </html>

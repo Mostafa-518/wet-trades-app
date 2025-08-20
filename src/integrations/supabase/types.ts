@@ -107,6 +107,45 @@ export type Database = {
         }
         Relationships: []
       }
+      data_access_logs: {
+        Row: {
+          access_type: string
+          accessed_entity_id: string | null
+          accessed_table: string
+          additional_context: Json | null
+          created_at: string | null
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string | null
+          user_role: Database["public"]["Enums"]["user_role"] | null
+        }
+        Insert: {
+          access_type: string
+          accessed_entity_id?: string | null
+          accessed_table: string
+          additional_context?: Json | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          user_role?: Database["public"]["Enums"]["user_role"] | null
+        }
+        Update: {
+          access_type?: string
+          accessed_entity_id?: string | null
+          accessed_table?: string
+          additional_context?: Json | null
+          created_at?: string | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          user_role?: Database["public"]["Enums"]["user_role"] | null
+        }
+        Relationships: []
+      }
       estimate_feedback: {
         Row: {
           created_at: string
@@ -529,6 +568,30 @@ export type Database = {
           },
         ]
       }
+      system_errors: {
+        Row: {
+          context: string | null
+          created_at: string | null
+          error_message: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          context?: string | null
+          created_at?: string | null
+          error_message: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          context?: string | null
+          created_at?: string | null
+          error_message?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       trade_items: {
         Row: {
           created_at: string
@@ -663,17 +726,106 @@ export type Database = {
         Args: { p_log_id: string }
         Returns: undefined
       }
+      bytea_to_text: {
+        Args: { data: string }
+        Returns: string
+      }
+      call_send_alert_notification: {
+        Args: { alert_data: Json }
+        Returns: undefined
+      }
+      get_current_user_role_safe: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_user_role: {
         Args: { user_id: string }
         Returns: Database["public"]["Enums"]["user_role"]
+      }
+      http: {
+        Args: { request: Database["public"]["CompositeTypes"]["http_request"] }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      }
+      http_delete: {
+        Args:
+          | { content: string; content_type: string; uri: string }
+          | { uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      }
+      http_get: {
+        Args: { data: Json; uri: string } | { uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      }
+      http_head: {
+        Args: { uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      }
+      http_header: {
+        Args: { field: string; value: string }
+        Returns: Database["public"]["CompositeTypes"]["http_header"]
+      }
+      http_list_curlopt: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          curlopt: string
+          value: string
+        }[]
+      }
+      http_patch: {
+        Args: { content: string; content_type: string; uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      }
+      http_post: {
+        Args:
+          | { content: string; content_type: string; uri: string }
+          | { data: Json; uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      }
+      http_put: {
+        Args: { content: string; content_type: string; uri: string }
+        Returns: Database["public"]["CompositeTypes"]["http_response"]
+      }
+      http_reset_curlopt: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      http_set_curlopt: {
+        Args: { curlopt: string; value: string }
+        Returns: boolean
       }
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
       }
+      is_admin_only: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_admin_or_manager: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      log_critical_data_access: {
+        Args:
+          | { access_details?: Json; record_id: string; table_name: string }
+          | { access_details?: Json; record_id: string; table_name: string }
+        Returns: undefined
+      }
+      log_data_access: {
+        Args: { access_type?: string; entity_id?: string; table_name: string }
+        Returns: undefined
+      }
       purge_old_audit_logs: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      text_to_bytea: {
+        Args: { data: string }
+        Returns: string
+      }
+      urlencode: {
+        Args: { data: Json } | { string: string } | { string: string }
+        Returns: string
       }
     }
     Enums: {
@@ -700,7 +852,23 @@ export type Database = {
         | "procurement_engineer"
     }
     CompositeTypes: {
-      [_ in never]: never
+      http_header: {
+        field: string | null
+        value: string | null
+      }
+      http_request: {
+        method: unknown | null
+        uri: string | null
+        headers: Database["public"]["CompositeTypes"]["http_header"][] | null
+        content_type: string | null
+        content: string | null
+      }
+      http_response: {
+        status: number | null
+        content_type: string | null
+        headers: Database["public"]["CompositeTypes"]["http_header"][] | null
+        content: string | null
+      }
     }
   }
 }

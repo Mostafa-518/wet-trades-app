@@ -18,6 +18,7 @@ import FeedbackBar, { FeedbackRating } from "@/components/estimator/FeedbackBar"
 import MatchedItemsModal, { TopContextItem } from "@/components/estimator/MatchedItemsModal";
 import type { AiEstimateResult, CreateEstimateInput } from "@/services/estimateService";
 import { useToast } from "@/hooks/use-toast";
+import { logSensitiveDataAccess } from "@/utils/security/dataAccessLogger";
 import jsPDF from "jspdf";
 import * as XLSX from "xlsx";
 
@@ -441,6 +442,13 @@ function AiEstimatorPanel() {
     setGenerating(true);
     setSavedId(null);
     try {
+      // Log financial data access for estimates
+      logSensitiveDataAccess('estimates', 'ai_generation', 'view', {
+        access_type: 'ai_estimate_generation',
+        item_name: values.item_name,
+        trade_id: values.trade_id
+      });
+
       const res = await estimateService.estimateWithAI(values as any);
       setResult(res);
       const mapped: BreakdownItem[] = (res.breakdown || []).map((l: any) => ({

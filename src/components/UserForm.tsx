@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -50,6 +49,7 @@ interface UserFormProps {
 
 export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(user?.avatar || null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<UserFormData>({
     resolver: zodResolver(createUserSchema(!!user)),
@@ -66,15 +66,37 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
   });
 
   const handleSubmit = async (data: UserFormData) => {
+    console.log('=== UserForm handleSubmit called ===');
+    console.log('isSubmitting:', isSubmitting);
+    console.log('Form data received:', data);
+    
+    if (isSubmitting) {
+      console.log('Already submitting, returning early');
+      return;
+    }
+    
     try {
+      console.log('UserForm submitting:', data);
+      setIsSubmitting(true);
+      
       const submitData = {
         ...data,
         avatar: avatarUrl || undefined,
       };
+      
+      console.log('Final submit data:', submitData);
+      console.log('Calling onSubmit with data:', submitData);
+      
       await onSubmit(submitData);
+      
+      console.log('UserForm submit successful');
     } catch (error) {
-      // Re-throw error to ensure it's properly handled
+      console.error('UserForm submit error:', error);
+      // Re-throw error to ensure it's properly handled by parent
       throw error;
+    } finally {
+      console.log('Setting isSubmitting to false');
+      setIsSubmitting(false);
     }
   };
 
@@ -128,7 +150,7 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Role</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select role" />
@@ -166,7 +188,7 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select status" />
@@ -223,10 +245,10 @@ export function UserForm({ user, onSubmit, onCancel }: UserFormProps) {
           </Button>
           <Button 
             type="submit"
-            disabled={form.formState.isSubmitting} 
+            disabled={isSubmitting} 
             className="w-full sm:w-auto"
           >
-            {form.formState.isSubmitting 
+            {isSubmitting 
               ? (user ? 'Updating...' : 'Creating...') 
               : (user ? 'Update User' : 'Create User')
             }

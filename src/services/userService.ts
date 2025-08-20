@@ -49,20 +49,32 @@ export class UserService {
   }
 
   static async update(id: string, user: UserProfileUpdate) {
+    console.log('=== UserService.update called ===');
+    console.log('Updating user ID:', id);
+    console.log('Update data:', user);
+    
+    const updatePayload = { 
+      ...user, 
+      updated_at: new Date().toISOString() 
+    };
+    
+    console.log('Final update payload:', updatePayload);
+    
     const { data, error } = await supabase
       .from('user_profiles')
-      .update({ 
-        ...user, 
-        updated_at: new Date().toISOString() 
-      })
+      .update(updatePayload)
       .eq('id', id)
       .select()
       .single();
     
+    console.log('Supabase update response:', { data, error });
+    
     if (error) {
+      console.error('Supabase update error:', error);
       throw error;
     }
     
+    console.log('UserService.update successful:', data);
     return data;
   }
 

@@ -3,9 +3,10 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, X, Eye } from 'lucide-react';
+import { AlertTriangle, X, Eye, ExternalLink } from 'lucide-react';
 import { Alert } from '@/types/alert';
 import { formatDistance } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 interface AlertCardProps {
   alert: Alert & {
@@ -18,6 +19,17 @@ interface AlertCardProps {
 
 export function AlertCard({ alert, onMarkAsRead, onDismiss }: AlertCardProps) {
   const timeAgo = formatDistance(new Date(alert.created_at), new Date(), { addSuffix: true });
+  const navigate = useNavigate();
+
+  const handleViewDetails = () => {
+    if (alert.project_id) {
+      navigate(`/projects/${alert.project_id}`);
+    } else if (alert.subcontractor_id) {
+      navigate(`/subcontractors/${alert.subcontractor_id}`);
+    }
+  };
+
+  const hasDetails = alert.project_id || alert.subcontractor_id;
 
   return (
     <Card className={`${!alert.is_read ? 'border-red-200 bg-red-50' : 'border-gray-200'}`}>
@@ -80,6 +92,19 @@ export function AlertCard({ alert, onMarkAsRead, onDismiss }: AlertCardProps) {
             <div className="text-sm text-gray-600 mt-1">
               <span className="font-medium">Subcontractor: </span>
               {alert.subcontractors.company_name}
+            </div>
+          )}
+          {hasDetails && (
+            <div className="mt-3">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleViewDetails}
+                className="text-xs"
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                View Details
+              </Button>
             </div>
           )}
         </CardContent>
